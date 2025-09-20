@@ -1,16 +1,23 @@
 # Render deployment configuration for VeroctaAI
 services:
+  # Full-stack web service (recommended for simplicity)
   - type: web
-    name: verocta-ai
+    name: verocta-ai-fullstack
     env: python
-    plan: starter
+    region: oregon
+    plan: free
     buildCommand: |
-      pip install -r requirements.txt
-      cd frontend && npm install && npm run build
-    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 4 backend.app:app
+      pip install -r backend/requirements.txt &&
+      cd frontend &&
+      npm ci &&
+      npm run build
+    startCommand: |
+      cd backend && gunicorn --worker-class=gthread --workers=2 --threads=4 --worker-connections=1000 --max-requests=1000 --timeout=120 --keep-alive=2 --bind=0.0.0.0:$PORT app:app
     envVars:
       - key: FLASK_ENV
         value: production
+      - key: HOST
+        value: 0.0.0.0
       - key: SESSION_SECRET
         generateValue: true
       - key: OPENAI_API_KEY
@@ -24,3 +31,45 @@ services:
     healthCheckPath: /api/health
     autoDeploy: true
     branch: main
+
+# Optional: Separate services deployment
+#  - type: web
+#    name: verocta-backend
+#    env: python
+#    region: oregon
+#    plan: free
+#    buildCommand: pip install -r backend/requirements.txt
+#    startCommand: cd backend && gunicorn --worker-class=gthread --workers=2 --threads=4 --bind=0.0.0.0:$PORT app:app
+#    envVars:
+#      - key: FLASK_ENV
+#        value: production
+#      - key: SESSION_SECRET
+#        generateValue: true
+#      - key: OPENAI_API_KEY
+#        sync: false
+#    healthCheckPath: /api/health
+#    autoDeploy: true
+#
+#  - type: static
+#    name: verocta-frontend
+#    env: static
+#    region: oregon
+#    plan: free
+#    buildCommand: cd frontend && npm ci && npm run build
+#    publishPath: frontend/dist
+#    envVars:
+#      - key: VITE_API_URL
+#        value: https://verocta-backend.onrender.com/api
+#    routes:
+#      - type: rewrite
+#        source: "/*"
+#        destination: /index.html
+#    autoDeploy: true
+
+# Database service (optional)
+# databases:
+#   - name: verocta-db
+#     databaseName: verocta
+#     user: verocta_user
+#     region: oregon
+#     plan: free

@@ -40,7 +40,13 @@ app = Flask(__name__,
             template_folder=os.path.join(basedir, 'templates'))
 app.secret_key = os.environ.get("SESSION_SECRET")
 if not app.secret_key:
-    raise ValueError("SESSION_SECRET environment variable is required")
+    # For development only - generate a temporary secret
+    if os.environ.get('FLASK_ENV') == 'development':
+        import secrets
+        app.secret_key = secrets.token_hex(32)
+        logging.warning("⚠️ Using temporary SESSION_SECRET for development")
+    else:
+        raise ValueError("SESSION_SECRET environment variable is required for production")
 
 # Configure database connection securely using environment variables only
 supabase_url = os.environ.get("SUPABASE_URL")
@@ -69,11 +75,16 @@ allowed_origins = [
     "http://localhost:5000", 
     "http://127.0.0.1:5000",
     "http://localhost:3000",  # React dev server
-    "https://verocta-ai.onrender.com",  # Production URL
-    "https://*.onrender.com",  # Render subdomains
-    "https://*.vercel.app",  # Vercel deployments
-    "https://*.netlify.app"  # Netlify deployments
+    "https://verocta-ai.vercel.app",  # Vercel production URL
+    "https://verocta-ai-fullstack.onrender.com",  # Render production URL  
 ]
+
+# Add regex patterns for preview deployments (Flask-CORS supports regex as strings)
+allowed_origins.extend([
+    r"https://.*\.vercel\.app",  # Vercel preview deployments
+    r"https://.*\.onrender\.com",  # Render preview deployments
+    r"https://.*\.netlify\.app",  # Netlify deployments
+])
 
 # Add custom domain if provided
 custom_domain = os.environ.get("CUSTOM_DOMAIN")

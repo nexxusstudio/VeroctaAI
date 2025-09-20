@@ -1,29 +1,24 @@
 # Vercel Python Serverless Functions Requirements
-# Core dependencies for API functions
+# Lightweight dependencies for serverless deployment
 
-# Data processing
+# Core Flask dependencies for API functions
+Flask==3.1.1
+flask-cors==4.0.0
+flask-jwt-extended==4.6.0
+
+# Environment and security
+python-dotenv==1.0.1
+bcrypt==4.1.2
+
+# Data processing (lightweight for serverless)
 pandas>=2.0.0
 numpy>=1.24.0
+
+# AI integration
+openai==1.98.0
 
 # Date handling
 python-dateutil>=2.8.0
 
-# JSON handling (built-in, but explicit for clarity)
-# json - built-in
-
-# HTTP handling (built-in)
-# http.server - built-in
-
-# File handling (built-in)
-# os - built-in
-# tempfile - built-in
-
-# Logging (built-in)
-# logging - built-in
-
-# URL parsing (built-in)
-# urllib.parse - built-in
-
-# Note: Some heavy dependencies like matplotlib, reportlab, openai
-# are excluded for serverless optimization
-# These features are simplified or disabled in Vercel deployment
+# Note: Heavy dependencies like matplotlib, reportlab are excluded
+# for serverless optimization. These features are disabled in Vercel deployment

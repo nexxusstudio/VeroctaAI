@@ -8,34 +8,25 @@
       "config": {
         "distDir": "dist"
       }
-    },
-    {
-      "src": "api/**/*.py",
-      "use": "@vercel/python"
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
+      "source": "/api/(.*)",
+      "destination": "https://verocta-ai-fullstack.onrender.com/api/$1"
     },
     {
-      "src": "/(.*)",
-      "dest": "/frontend/dist/$1"
+      "source": "/((?!api).*)",
+      "destination": "/index.html"
     }
   ],
-  "functions": {
-    "api/**/*.py": {
-      "maxDuration": 30
-    }
-  },
   "env": {
-    "FLASK_ENV": "production",
-    "PYTHONPATH": "/var/task"
+    "NODE_VERSION": "20"
   },
   "build": {
     "env": {
-      "NODE_VERSION": "18"
+      "NODE_VERSION": "20",
+      "VITE_API_URL": "/api"
     }
   }
 }
